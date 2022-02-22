@@ -12,7 +12,7 @@ import it.gestionecompagnia.dao.AbstractMySQLDAO;
 import it.gestionecompagnia.model.Compagnia;
 
 public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
-	
+
 	public CompagniaDAOImpl(Connection connection) {
 		super(connection);
 	}
@@ -46,8 +46,34 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 
 	@Override
 	public Compagnia get(Long idInput) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (idInput == null || idInput < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		Compagnia result = null;
+		try (PreparedStatement ps = connection.prepareStatement("select * from compagnia where id=?")) {
+
+			ps.setLong(1, idInput);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					result = new Compagnia();
+					result.setRagioneSociale(rs.getString("ragionesociale"));
+					result.setFatturatoAnnuo(rs.getLong("fatturato"));
+					result.setDataFondazione(rs.getDate("datafondazione"));
+					result.setId(rs.getLong("ID"));
+				} else {
+					result = null;
+				}
+			} // niente catch qui
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
@@ -70,7 +96,7 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 				"INSERT INTO compagnia (ragionesociale, fatturato, datafondazione) VALUES (?, ?, ?);")) {
 			ps.setString(1, input.getRagioneSociale());
 			ps.setLong(2, input.getFatturatoAnnuo());
-	
+
 			// quando si fa il setDate serve un tipo java.sql.Date
 			ps.setDate(3, new java.sql.Date(input.getDataFondazione().getTime()));
 			result = ps.executeUpdate();
@@ -92,16 +118,16 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 		// TODO Auto-generated method stub
 		return null;
 	};
-	
-	public List<Compagnia> findAllByDataAssuunzioneMaggioreDi(Date dataInput) throws Exception{
+
+	public List<Compagnia> findAllByDataAssuunzioneMaggioreDi(Date dataInput) throws Exception {
 		return null;
 	};
 
-	public List<Compagnia> findAllByRagioneSocialeContiene(String input) throws Exception{
+	public List<Compagnia> findAllByRagioneSocialeContiene(String input) throws Exception {
 		return null;
-	}; 
+	};
 
-	public List<Compagnia> findAllByCodFisImpiegatoContiene(String input) throws Exception{
+	public List<Compagnia> findAllByCodFisImpiegatoContiene(String input) throws Exception {
 		return null;
 	}
 }

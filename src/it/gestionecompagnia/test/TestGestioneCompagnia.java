@@ -36,6 +36,9 @@ public class TestGestioneCompagnia {
 			testInserimentoImpiegato(compagniaDAOInstance, impiegatoDAOInstance);
 			System.out.println("In tabella impiegato ci sono " +impiegatoDAOInstance.list().size() + " elementi.");
 			System.out.println("");
+			
+			testFindByIdCompagnia(compagniaDAOInstance);
+			testFindByIdImpiegato(impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,6 +73,41 @@ public class TestGestioneCompagnia {
 			throw new RuntimeException("testInserimentoImpiegato : FAILED");
 
 		System.out.println(".......testInserimentoImpiegato fine: PASSED.............");
+		System.out.println("");
+	}
+	
+	private static void testFindByIdCompagnia(CompagniaDAO compagniaDAOInstance) throws Exception {
+		System.out.println(".......testFindById inizio.............");
+		System.out.println("");
+		List<Compagnia> elencoVociPresenti = compagniaDAOInstance.list();
+		if (elencoVociPresenti.size() < 1)
+			throw new RuntimeException("testFindByIdCompagnia : FAILED, non ci sono voci sul DB");
+
+		Compagnia primoDellaLista = elencoVociPresenti.get(0);
+
+		Compagnia elementoCheRicercoColDAO = compagniaDAOInstance.get(primoDellaLista.getId());
+		if (elementoCheRicercoColDAO == null || !elementoCheRicercoColDAO.getRagioneSociale().equals(primoDellaLista.getRagioneSociale()))
+			throw new RuntimeException("testFindByIdCompagnia : FAILED, le ragioni sociali non corrispondono");
+
+		System.out.println(".......testFindByIdCompagnia fine: PASSED.............");
+		System.out.println("");
+	}
+	
+	private static void testFindByIdImpiegato(ImpiegatoDAO impiegatoDAOInstance) throws Exception{
+		System.out.println(".......testFindByIdImpiegato inizio.............");
+		System.out.println("");
+		List<Impiegato> elencoImpiegatiPresenti = impiegatoDAOInstance.list();
+		if (elencoImpiegatiPresenti.size() < 1)
+			throw new RuntimeException("testFindByIdImpiegato : FAILED, non ci sono articoli sul DB");
+
+		Impiegato primoImpiegatoDellaLista = elencoImpiegatiPresenti.get(0);
+
+		Impiegato impiegatoCheRicercoColDAO = impiegatoDAOInstance.get(primoImpiegatoDellaLista.getId());
+		if (impiegatoCheRicercoColDAO == null
+				|| !impiegatoCheRicercoColDAO.getNome().equals(primoImpiegatoDellaLista.getNome()))
+			throw new RuntimeException("testFindByIdImpiegato : FAILED, i nomi non corrispondono");
+
+		System.out.println(".......testFindByIdImpiegato fine: PASSED.............");
 		System.out.println("");
 	}
 }

@@ -13,7 +13,7 @@ import it.gestionecompagnia.model.Compagnia;
 import it.gestionecompagnia.model.Impiegato;
 
 public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
-	
+
 	public ImpiegatoDAOImpl(Connection connection) {
 		super(connection);
 	}
@@ -58,8 +58,37 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 
 	@Override
 	public Impiegato get(Long idInput) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (idInput == null || idInput < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		Impiegato result = null;
+		try (PreparedStatement ps = connection.prepareStatement("select * from impiegato where id=?")) {
+
+			ps.setLong(1, idInput);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+
+					result = new Impiegato();
+					result.setNome(rs.getString("nome"));
+					result.setCognome(rs.getString("cognome"));
+					result.setCodiceFiscale(rs.getString("codicefiscale"));
+					result.setId(rs.getLong("ID"));
+					result.setDataDiNascita(rs.getDate("datanascita"));
+					result.setDataDiAssunzione(rs.getDate("dataassunzione"));
+					
+				} else {
+					result = null;
+				}
+			} // niente catch qui
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
