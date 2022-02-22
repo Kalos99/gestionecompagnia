@@ -23,9 +23,26 @@ public class Impiegato {
 		this.dataDiNascita = dataDiNascita;
 		this.dataDiAssunzione = dataDiAssunzione;
 	}
+	
+	public Impiegato(String nome, String cognome, String codiceFiscale, Date dataDiNascita, Date dataDiAssunzione) {
+		this.nome = nome;
+		this.cognome = cognome;
+		this.codiceFiscale = codiceFiscale;
+		this.dataDiNascita = dataDiNascita;
+		this.dataDiAssunzione = dataDiAssunzione;
+	}
 
 	public Impiegato(Long id, String nome, String cognome, String codiceFiscale, Date dataDiNascita, Date dataDiAssunzione, Compagnia compagniaDiAppartenenza) {
 		this.id = id;
+		this.nome = nome;
+		this.cognome = cognome;
+		this.codiceFiscale = codiceFiscale;
+		this.dataDiNascita = dataDiNascita;
+		this.dataDiAssunzione = dataDiAssunzione;
+		this.compagniaDiAppartenenza = compagniaDiAppartenenza;
+	}
+	
+	public Impiegato(String nome, String cognome, String codiceFiscale, Date dataDiNascita, Date dataDiAssunzione, Compagnia compagniaDiAppartenenza) {
 		this.nome = nome;
 		this.cognome = cognome;
 		this.codiceFiscale = codiceFiscale;
