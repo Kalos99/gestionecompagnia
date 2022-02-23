@@ -54,6 +54,7 @@ public class TestGestioneCompagnia {
 			testFindByExampleCompagnia(compagniaDAOInstance);
 			testFindByExampleImpiegato(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByDataAssunzioneMaggioreDi(compagniaDAOInstance, impiegatoDAOInstance);
+			testFindAllByRagioneSocialeContiene(compagniaDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -327,7 +328,6 @@ public class TestGestioneCompagnia {
 		if (quantiElementiInseriti < 1)
 			throw new RuntimeException("testFindAllByDataAssunzioneMaggioreDi : FAILED, compagnia non inserita");
 		
-		System.out.println(nuovaCompagnia.toString());
 		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
 		Compagnia compagniaRicaricata = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
 		if (compagniaRicaricata == null)
@@ -350,6 +350,31 @@ public class TestGestioneCompagnia {
 		};
 
 		System.out.println(".......testFindAllByDataAssunzioneMaggioreDi fine: PASSED.............");
+		System.out.println("");
+	}
+	
+	private static void testFindAllByRagioneSocialeContiene(CompagniaDAO compagniaDAOInstance) throws Exception {
+		System.out.println(".......testFindAllByRagioneSocialeContiene inizio.............");
+		System.out.println("");
+		
+		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("13-07-1991");
+
+		// creo degli elementi che fanno al caso mio così sono certo di avere dei risultati positivi
+		Compagnia nuovaCompagnia = new Compagnia("Solving origins", (long)15000000, dataFondazione);
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindAllByRagioneSocialeContiene : FAILED, compagnia non inserita");
+
+		// ora provo ad estrarre tutti quelli che soddisfano la condizione desiderata
+		String stringaPerQuery = "Solving";
+		List<Compagnia> compagnieCheSoddisfanoLaCondizione = compagniaDAOInstance.findAllByRagioneSocialeContiene(stringaPerQuery);
+		for(Compagnia compagniaItem : compagnieCheSoddisfanoLaCondizione) {
+			if(!compagniaItem.getRagioneSociale().contains(stringaPerQuery)) {
+				throw new RuntimeException("testFindAllByRagioneSocialeContiene : FAILED, le compagnie trovate non soddisfano la condizione");
+			}
+		}
+
+		System.out.println(".......testFindAllByRagioneSocialeContiene fine: PASSED.............");
 		System.out.println("");
 	}
 	
