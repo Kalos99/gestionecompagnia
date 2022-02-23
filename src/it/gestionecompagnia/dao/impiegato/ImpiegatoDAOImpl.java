@@ -279,11 +279,62 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 		return result;
 	};
 
-	public List<Impiegato> findAllByCompagniaConFatturatoMaggioreDi(long fatturatoInput) {
-		return null;
+	public List<Impiegato> findAllByCompagniaConFatturatoMaggioreDi(long fatturatoInput) throws Exception {
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		ArrayList<Impiegato> result = new ArrayList<Impiegato>();
+		Impiegato impiegatoTemp = null;
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from impiegato i inner join compagnia c on i.compagnia_id = c.id where c.fatturato >=?")) {
+
+			ps.setLong(1, fatturatoInput);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+
+					impiegatoTemp = new Impiegato();
+					impiegatoTemp.setNome(rs.getString("nome"));
+					impiegatoTemp.setCognome(rs.getString("cognome"));
+					impiegatoTemp.setCodiceFiscale(rs.getString("codicefiscale"));
+					impiegatoTemp.setId(rs.getLong("ID"));
+					impiegatoTemp.setDataDiNascita(rs.getDate("datanascita"));
+					impiegatoTemp.setDataDiAssunzione(rs.getDate("dataassunzione"));
+					result.add(impiegatoTemp);
+				}
+			} // niente catch qui
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	};
 
-	public List<Impiegato> findAllErroriAssunzioni() {
-		return null;
+	public List<Impiegato> findAllErroriAssunzioni() throws Exception {
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		ArrayList<Impiegato> result = new ArrayList<Impiegato>();
+		Impiegato impiegatoTemp = null;
+		try (Statement ps = connection.createStatement();
+				ResultSet rs = ps.executeQuery(
+						"select * from impiegato i inner join compagnia c on i.compagnia_id = c.id where i.dataassunzione < c.datafondazione")) {
+			while (rs.next()) {
+
+				impiegatoTemp = new Impiegato();
+				impiegatoTemp.setNome(rs.getString("nome"));
+				impiegatoTemp.setCognome(rs.getString("cognome"));
+				impiegatoTemp.setCodiceFiscale(rs.getString("codicefiscale"));
+				impiegatoTemp.setId(rs.getLong("ID"));
+				impiegatoTemp.setDataDiNascita(rs.getDate("datanascita"));
+				impiegatoTemp.setDataDiAssunzione(rs.getDate("dataassunzione"));
+				result.add(impiegatoTemp);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 }

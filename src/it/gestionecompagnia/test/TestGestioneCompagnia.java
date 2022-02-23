@@ -58,6 +58,7 @@ public class TestGestioneCompagnia {
 			testFindAllByCodFisImpiegatoContiene(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByCompagnia(compagniaDAOInstance, impiegatoDAOInstance);
 			testCountByDataFormazioneCompagniaGreaterThan(compagniaDAOInstance, impiegatoDAOInstance);
+			testFindAllByCompagniaConFatturatoMaggioreDi(compagniaDAOInstance, impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -503,4 +504,46 @@ public class TestGestioneCompagnia {
 		System.out.println(".......testCountByDataFormazioneCompagniaGreaterThan fine: PASSED.............");
 		System.out.println("");
 		}
-	}
+	
+	private static void testFindAllByCompagniaConFatturatoMaggioreDi(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception{
+		System.out.println(".......testFindAllByCompagniaConFatturatoMaggioreDi inizio.............");
+		System.out.println("");
+		
+		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("22-03-1997");
+		Compagnia nuovaCompagnia = new Compagnia("CybeOrigins", (long)20000000, dataFondazione);
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindAllByCompagniaConFatturatoMaggioreDi : FAILED, compagnia non inserita");
+		
+		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
+		Compagnia compagniaRicaricata = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
+		if (compagniaRicaricata == null)
+			throw new RuntimeException("testFindAllByCompagniaConFatturatoMaggioreDi : FAILED, compagnia non ricaricata");
+		
+		Date dataNascita = new SimpleDateFormat("dd-MM-yyyy").parse("25-04-1984");
+		Date dataAssunzione = new SimpleDateFormat("dd-MM-yyyy").parse("21-06-2009");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato nuovoImpiegato = new Impiegato("Alessia", "Simoni", "SMNLSS84D65D403X", dataNascita, dataAssunzione, compagniaRicaricata);
+
+		int quantiElementiInseriti1 = impiegatoDAOInstance.insert(nuovoImpiegato);
+		if (quantiElementiInseriti1 < 1)
+			throw new RuntimeException("testFindAllByCompagniaConFatturatoMaggioreDi : FAILED, impiegato non inserito");
+		
+		Date dataNascita2 = new SimpleDateFormat("dd-MM-yyyy").parse("24-08-1985");
+		Date dataAssunzione2 = new SimpleDateFormat("dd-MM-yyyy").parse("24-05-2012");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato altroNuovoImpiegato = new Impiegato("Irene", "Di Fazio", "DFZRNI85M64C933O", dataNascita2, dataAssunzione2, compagniaRicaricata);
+
+		int quantiElementiInseriti2 = impiegatoDAOInstance.insert(altroNuovoImpiegato);
+		if (quantiElementiInseriti2 < 1)
+			throw new RuntimeException("testFindAllByCompagniaConFatturatoMaggioreDi : FAILED, impiegato non inserito");
+		
+		if(impiegatoDAOInstance.findAllByCompagniaConFatturatoMaggioreDi((long)10000000) == null) {
+			throw new RuntimeException("testFindAllByCompagniaConFatturatoMaggioreDi : FAILED, ricerca non riuscita");
+		};
+		System.out.println(".......testFindAllByCompagniaConFatturatoMaggioreDi fine: PASSED.............");
+		System.out.println("");
+	} 
+}
