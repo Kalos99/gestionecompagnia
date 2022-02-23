@@ -59,6 +59,7 @@ public class TestGestioneCompagnia {
 			testFindAllByCompagnia(compagniaDAOInstance, impiegatoDAOInstance);
 			testCountByDataFormazioneCompagniaGreaterThan(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByCompagniaConFatturatoMaggioreDi(compagniaDAOInstance, impiegatoDAOInstance);
+			testFindAllErroriAssunzioni(compagniaDAOInstance, impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -546,4 +547,36 @@ public class TestGestioneCompagnia {
 		System.out.println(".......testFindAllByCompagniaConFatturatoMaggioreDi fine: PASSED.............");
 		System.out.println("");
 	} 
+	
+	private static void testFindAllErroriAssunzioni(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception{
+		System.out.println(".......testFindAllErroriAssunzioni inizio.............");
+		System.out.println("");
+		
+		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("22-03-2021");
+		Compagnia nuovaCompagnia = new Compagnia("Complex mind", (long)4000000, dataFondazione);
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindAllErroriAssunzioni : FAILED, compagnia non inserita");
+		
+		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
+		Compagnia compagniaRicaricata = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
+		if (compagniaRicaricata == null)
+			throw new RuntimeException("testFindAllErroriAssunzioni : FAILED, compagnia non ricaricata");
+		
+		Date dataNascita = new SimpleDateFormat("dd-MM-yyyy").parse("01-07-1994");
+		Date dataAssunzione = new SimpleDateFormat("dd-MM-yyyy").parse("21-06-2020");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato nuovoImpiegato = new Impiegato("Stefano", "Borghi", "BRGSFN94L01H501V", dataNascita, dataAssunzione, compagniaRicaricata);
+
+		int quantiElementiInseriti1 = impiegatoDAOInstance.insert(nuovoImpiegato);
+		if (quantiElementiInseriti1 < 1)
+			throw new RuntimeException("testFindAllErroriAssunzioni : FAILED, impiegato non inserito");
+		
+		if(impiegatoDAOInstance.findAllErroriAssunzioni() == null) {
+			throw new RuntimeException("testFindAllErroriAssunzioni : FAILED, ricerca non riuscita");
+		};
+		System.out.println(".......testFindAllErroriAssunzioni fine: PASSED.............");
+		System.out.println("");
+	}
 }
