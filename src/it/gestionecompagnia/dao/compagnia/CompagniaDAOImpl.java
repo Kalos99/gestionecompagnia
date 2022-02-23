@@ -148,8 +148,44 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 
 	@Override
 	public List<Compagnia> findByExample(Compagnia input) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (input == null)
+			throw new Exception("Valore di input non ammesso.");
+
+		ArrayList<Compagnia> result = new ArrayList<Compagnia>();
+		Compagnia compagniaTemp = null;
+
+		String query = "select * from compagnia where 1=1 ";
+		if (input.getRagioneSociale() != null && !input.getRagioneSociale().isEmpty()) {
+			query += " and ragionesociale like '" + input.getRagioneSociale() + "%' ";
+		}
+		if (input.getFatturatoAnnuo() != null) {
+			query += " and fatturato like '" + input.getFatturatoAnnuo() + "%' ";
+		}
+
+		if (input.getDataFondazione() != null) {
+			query += " and datafondazione='" + new java.sql.Date(input.getDataFondazione().getTime()) + "' ";
+		}
+
+		try (Statement ps = connection.createStatement()) {
+			ResultSet rs = ps.executeQuery(query);
+
+			while (rs.next()) {
+				compagniaTemp = new Compagnia();
+				compagniaTemp.setRagioneSociale(rs.getString("ragionesociale"));
+				compagniaTemp.setFatturatoAnnuo(rs.getLong("fatturato"));
+				compagniaTemp.setDataFondazione(rs.getDate("datafondazione"));
+				compagniaTemp.setId(rs.getLong("ID"));
+				result.add(compagniaTemp);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	};
 
 	public List<Compagnia> findAllByDataAssuunzioneMaggioreDi(Date dataInput) throws Exception {

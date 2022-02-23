@@ -50,6 +50,9 @@ public class TestGestioneCompagnia {
 			testDeleteImpiegato(compagniaDAOInstance, impiegatoDAOInstance);
 			System.out.println("In tabella impiegato ci sono " + impiegatoDAOInstance.list().size() + " elementi.");
 			System.out.println("");
+			
+			testFindByExampleCompagnia(compagniaDAOInstance);
+			testFindByExampleImpiegato(compagniaDAOInstance, impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -245,4 +248,70 @@ public class TestGestioneCompagnia {
 		System.out.println(".......testDeleteCompagnia fine: PASSED.............");
 		System.out.println("");
 	}
+	
+	private static void testFindByExampleCompagnia(CompagniaDAO compagniaDAOInstance) throws Exception {
+		System.out.println(".......testFindByExampleCompagnia inizio.............");
+		System.out.println("");
+
+		Date dataFondazione1 = new SimpleDateFormat("dd-MM-yyyy").parse("16-04-2002");
+		Date dataFondazione2 = new SimpleDateFormat("dd-MM-yyyy").parse("01-01-2003");
+
+		// me ne creo un paio che fanno al caso mio così almeno due li troverò
+		Compagnia nuovaCompagnia = new Compagnia("FataInformatica", (long)6000000, dataFondazione1);
+		Compagnia altraNuovaCompagnia = new Compagnia("Solving Squad", (long)7500000, dataFondazione2);
+
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindByExampleCompagnia : FAILED, compagnia non inserita");
+
+		quantiElementiInseriti = compagniaDAOInstance.insert(altraNuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindByExampleCompagnia : FAILED, compagnia non inserita");
+		
+		// ora provo ad estrarre quelli che rispattano i parametri dell'example
+		List<Compagnia> elencoCompagnieConExample = compagniaDAOInstance.findByExample(altraNuovaCompagnia);
+		for (Compagnia compagniaItem : elencoCompagnieConExample) {
+			if(!compagniaItem.getRagioneSociale().equals(altraNuovaCompagnia.getRagioneSociale()))
+				throw new RuntimeException(
+						"testFindByExampleCompagnia : FAILED, le compagnie non rispettano le caratteristiche dell'example"
+								+ compagniaItem.getId());
+		}
+
+		System.out.println(".......testFindByExampleCompagnia fine: PASSED.............");
+		System.out.println("");
+	}
+	
+	private static void testFindByExampleImpiegato(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception{
+		System.out.println(".......testFindByExampleImpiegato inizio.............");
+		System.out.println("");
+		
+		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
+		if (elencoCompagniePresenti.size() < 1)
+			throw new RuntimeException("testInsertArticolo : FAILED, non ci sono compagnie sul DB");
+
+		Compagnia ultimaCompagniaDellaLista = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
+
+		Date dataNascita = new SimpleDateFormat("dd-MM-yyyy").parse("16-03-1990");
+		Date dataAssunzione = new SimpleDateFormat("dd-MM-yyyy").parse("20-01-2022");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato nuovoImpiegato = new Impiegato("Massimo", "Marianella", "MRNMSM90C16H501X", dataNascita, dataAssunzione, ultimaCompagniaDellaLista);
+
+		int quantiElementiInseriti = impiegatoDAOInstance.insert(nuovoImpiegato);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindByExampleImpiegato : FAILED, impiegato non inserito");
+		
+		// ora provo ad estrarre quelli che rispattano i parametri dell'example
+		List<Impiegato> elencoImpiegatiConExample = impiegatoDAOInstance.findByExample(nuovoImpiegato);
+		for (Impiegato impiegatoItem : elencoImpiegatiConExample) {
+			if(!impiegatoItem.getNome().equals(nuovoImpiegato.getNome()) || !impiegatoItem.getCognome().equals(nuovoImpiegato.getCognome()))
+				throw new RuntimeException(
+						"testFindByExampleImpiegato : FAILED, gli impiegati non rispettano le caratteristiche dell'example"
+								+ nuovoImpiegato.getId());
+		}
+
+		System.out.println(".......testFindByExampleImpiegato fine: PASSED.............");
+		System.out.println("");
+	}
+	
 }
