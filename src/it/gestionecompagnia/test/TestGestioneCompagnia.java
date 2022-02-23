@@ -55,6 +55,7 @@ public class TestGestioneCompagnia {
 			testFindByExampleImpiegato(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByDataAssunzioneMaggioreDi(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByRagioneSocialeContiene(compagniaDAOInstance);
+			testFindAllByCodFisImpiegatoContiene(compagniaDAOInstance, impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -378,4 +379,40 @@ public class TestGestioneCompagnia {
 		System.out.println("");
 	}
 	
+	private static void testFindAllByCodFisImpiegatoContiene(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception {
+		System.out.println(".......testFindAllByDataAssunzioneMaggioreDi inizio.............");
+		System.out.println("");
+		
+		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("25-09-2004");
+
+		// creo degli elementi che fanno al caso mio così sono certo di avere dei risultati positivi
+		Compagnia nuovaCompagnia = new Compagnia("Data Engineers", (long)12500000, dataFondazione);
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindAllByCodFisImpiegatoContiene : FAILED, compagnia non inserita");
+		
+		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
+		Compagnia compagniaRicaricata = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
+		if (compagniaRicaricata == null)
+			throw new RuntimeException("testFindAllByCodFisImpiegatoContiene : FAILED, compagnia non ricaricata");
+		
+		Date dataNascita = new SimpleDateFormat("dd-MM-yyyy").parse("14-02-1994");
+		Date dataAssunzione = new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2018");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato nuovoImpiegato = new Impiegato("Mattia", "Marino", " MRNMTT94B14B486M", dataNascita, dataAssunzione, compagniaRicaricata);
+
+		int quantiElementiInseriti1 = impiegatoDAOInstance.insert(nuovoImpiegato);
+		if (quantiElementiInseriti1 < 1)
+			throw new RuntimeException("testFindAllByCodFisImpiegatoContiene : FAILED, impiegato non inserito");
+
+		// ora provo ad estrarre tutti quelli che soddisfano la condizione desiderata
+		String stringaPerQuery = "MRNM";
+		if(compagniaDAOInstance.findAllByCodFisImpiegatoContiene(stringaPerQuery) == null) {
+			throw new RuntimeException("testFindAllByCodFisImpiegatoContiene : FAILED, ricerca non riuscita");
+		};
+
+		System.out.println(".......testFindAllByCodFisImpiegatoContiene fine: PASSED.............");
+		System.out.println("");
+	}	
 }
