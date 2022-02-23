@@ -9,9 +9,9 @@ import it.gestionecompagnia.model.Impiegato;
 
 public interface ImpiegatoDAO extends IBaseDAO<Impiegato>{
 
-	public List<Impiegato> findAllByCompagnia(Compagnia compagniaInput);
-	public int countByDataFormazioneCompagniaGreaterThan(Date dataInput);
-	public List<Impiegato> findAllByCompagniaConFatturatoMaggioreDi(long fatturatoInput); 
-	public List<Impiegato> findAllErroriAssunzioni();
+	public List<Impiegato> findAllByCompagnia(Compagnia compagniaInput) throws Exception;
+	public int countByDataFormazioneCompagniaGreaterThan(Date dataInput) throws Exception;
+	public List<Impiegato> findAllByCompagniaConFatturatoMaggioreDi(long fatturatoInput) throws Exception; 
+	public List<Impiegato> findAllErroriAssunzioni() throws Exception;
 
 }

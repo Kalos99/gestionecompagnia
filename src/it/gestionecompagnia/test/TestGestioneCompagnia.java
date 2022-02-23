@@ -56,6 +56,7 @@ public class TestGestioneCompagnia {
 			testFindAllByDataAssunzioneMaggioreDi(compagniaDAOInstance, impiegatoDAOInstance);
 			testFindAllByRagioneSocialeContiene(compagniaDAOInstance);
 			testFindAllByCodFisImpiegatoContiene(compagniaDAOInstance, impiegatoDAOInstance);
+			testFindAllByCompagnia(compagniaDAOInstance, impiegatoDAOInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -346,9 +347,10 @@ public class TestGestioneCompagnia {
 
 		// ora provo ad estrarre tutti quelli che soddisfano la condizione desiderata
 		Date dataPerQuery = new SimpleDateFormat("dd-MM-yyyy").parse("01-01-2022");
-		if(compagniaDAOInstance.findAllByDataAssunzioneMaggioreDi(dataPerQuery) == null) {
-			throw new RuntimeException("testFindAllByDataAssunzioneMaggioreDi : FAILED, ricerca non riuscita");
-		};
+		System.out.println(compagniaDAOInstance.findAllByDataAssunzioneMaggioreDi(dataPerQuery));
+//		if(compagniaDAOInstance.findAllByDataAssunzioneMaggioreDi(dataPerQuery) == null) {
+//			throw new RuntimeException("testFindAllByDataAssunzioneMaggioreDi : FAILED, ricerca non riuscita");
+//		};
 
 		System.out.println(".......testFindAllByDataAssunzioneMaggioreDi fine: PASSED.............");
 		System.out.println("");
@@ -380,7 +382,7 @@ public class TestGestioneCompagnia {
 	}
 	
 	private static void testFindAllByCodFisImpiegatoContiene(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception {
-		System.out.println(".......testFindAllByDataAssunzioneMaggioreDi inizio.............");
+		System.out.println(".......testFindAllByCodFisImpiegatoContiene inizio.............");
 		System.out.println("");
 		
 		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("25-09-2004");
@@ -415,4 +417,46 @@ public class TestGestioneCompagnia {
 		System.out.println(".......testFindAllByCodFisImpiegatoContiene fine: PASSED.............");
 		System.out.println("");
 	}	
+	
+	private static void testFindAllByCompagnia(CompagniaDAO compagniaDAOInstance, ImpiegatoDAO impiegatoDAOInstance) throws Exception{
+		System.out.println(".......testFindAllByCompagnia inizio.............");
+		System.out.println("");
+		
+		Date dataFondazione = new SimpleDateFormat("dd-MM-yyyy").parse("27-05-2014");
+		Compagnia nuovaCompagnia = new Compagnia("Cybertech", (long)4500000, dataFondazione);
+		int quantiElementiInseriti = compagniaDAOInstance.insert(nuovaCompagnia);
+		if (quantiElementiInseriti < 1)
+			throw new RuntimeException("testFindAllByCompagnia : FAILED, compagnia non inserita");
+		
+		List<Compagnia> elencoCompagniePresenti = compagniaDAOInstance.list();
+		Compagnia compagniaRicaricata = elencoCompagniePresenti.get(elencoCompagniePresenti.size()-1);
+		if (compagniaRicaricata == null)
+			throw new RuntimeException("testFindAllByCompagnia : FAILED, compagnia non ricaricata");
+		
+		Date dataNascita = new SimpleDateFormat("dd-MM-yyyy").parse("21-09-1992");
+		Date dataAssunzione = new SimpleDateFormat("dd-MM-yyyy").parse("13-05-2020");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato nuovoImpiegato = new Impiegato("Giuseppe", "Cimino", "CMNGPP92P21H703Q", dataNascita, dataAssunzione, compagniaRicaricata);
+
+		int quantiElementiInseriti1 = impiegatoDAOInstance.insert(nuovoImpiegato);
+		if (quantiElementiInseriti1 < 1)
+			throw new RuntimeException("testFindAllByCompagnia : FAILED, impiegato non inserito");
+		
+		Date dataNascita2 = new SimpleDateFormat("dd-MM-yyyy").parse("25-04-1995");
+		Date dataAssunzione2 = new SimpleDateFormat("dd-MM-yyyy").parse("14-02-2021");
+
+		// me ne creo uno che fa al caso mio così da poterne trovare almeno uno
+		Impiegato altroNuovoImpiegato = new Impiegato("Alessandra", "Carini", "CRNLSN95D65D969Z", dataNascita2, dataAssunzione2, compagniaRicaricata);
+
+		int quantiElementiInseriti2 = impiegatoDAOInstance.insert(altroNuovoImpiegato);
+		if (quantiElementiInseriti2 < 1)
+			throw new RuntimeException("testFindAllByCompagnia : FAILED, impiegato non inserito");
+		
+		if(impiegatoDAOInstance.findAllByCompagnia(compagniaRicaricata) == null) {
+			throw new RuntimeException("testFindAllByCodFisImpiegatoContiene : FAILED, ricerca non riuscita");
+		};
+		System.out.println(".......testFindAllByCompagnia fine: PASSED.............");
+		System.out.println("");
+	} 
 }
