@@ -115,5 +115,5 @@ public class Impiegato {
 		return "Nome impiegato: " + this.getNome() + "\nCognome impiegato: " + this.getCognome() 
 				+ "\nCodice fiscale impiegato: " + this.getCodiceFiscale() + "\nData di nascita: " 
 				+ dateCreatedString1 + "\nData di assunzione: " + dateCreatedString2; 
-	}		
+	}	
 }

@@ -78,7 +78,7 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 					result.setId(rs.getLong("ID"));
 					result.setDataDiNascita(rs.getDate("datanascita"));
 					result.setDataDiAssunzione(rs.getDate("dataassunzione"));
-					
+
 				} else {
 					result = null;
 				}
@@ -93,8 +93,33 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 
 	@Override
 	public int update(Impiegato input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (input == null || input.getId() < 1 || input.getCompagniaDiAppartenenza() == null
+				|| input.getCompagniaDiAppartenenza().getId() < 1) {
+			throw new Exception("Valore di input non ammesso.");
+		}
+
+		int result = 0;
+		try (PreparedStatement ps = connection.prepareStatement(
+				"UPDATE impiegato SET nome=?, cognome=?, codicefiscale=?, datanascita=?, dataassunzione=?, compagnia_id=? where id=?;")) {
+
+			ps.setString(1, input.getNome());
+			ps.setString(2, input.getCognome());
+			ps.setString(3, input.getCodiceFiscale());
+			// quando si fa il setDate serve un tipo java.sql.Date
+			ps.setDate(4, new java.sql.Date(input.getDataDiNascita().getTime()));
+			ps.setDate(5, new java.sql.Date(input.getDataDiAssunzione().getTime()));
+			ps.setLong(6, input.getCompagniaDiAppartenenza().getId());
+			ps.setLong(7, input.getId());
+			result = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
@@ -126,8 +151,24 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 
 	@Override
 	public int delete(Impiegato input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (input == null || input.getId() < 1 || input.getCompagniaDiAppartenenza() == null
+				|| input.getCompagniaDiAppartenenza().getId() < 1) {
+			throw new Exception("Valore di input non ammesso.");
+		}
+
+		int result = 0;
+		try (PreparedStatement ps = connection.prepareStatement("DELETE FROM impiegato WHERE ID=?")){
+			ps.setLong(1, input.getId());
+			result = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	};
 
 	@Override

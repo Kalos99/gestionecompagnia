@@ -78,8 +78,27 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 
 	@Override
 	public int update(Compagnia input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (input == null || input.getId() == null || input.getId() < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		int result = 0;
+		try (PreparedStatement ps = connection
+				.prepareStatement("UPDATE compagnia SET ragionesociale=?, fatturato=?, datafondazione=? where id=?;")) {
+			ps.setString(1, input.getRagioneSociale());
+			ps.setLong(2, input.getFatturatoAnnuo());
+			// quando si fa il setDate serve un tipo java.sql.Date
+			ps.setDate(3, new java.sql.Date(input.getDataFondazione().getTime()));
+			ps.setLong(4, input.getId());
+			result = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
@@ -109,8 +128,22 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 
 	@Override
 	public int delete(Compagnia input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (input == null || input.getId() == null || input.getId() < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		int result = 0;
+		try (PreparedStatement ps = connection.prepareStatement("DELETE FROM compagnia WHERE ID=?")) {
+			ps.setLong(1, input.getId());
+			result = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
