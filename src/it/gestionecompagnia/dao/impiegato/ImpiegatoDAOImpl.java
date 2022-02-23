@@ -220,7 +220,7 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 		return result;
 	}
 
-	public List<Impiegato> findAllByCompagnia(Compagnia compagniaInput) throws Exception{
+	public List<Impiegato> findAllByCompagnia(Compagnia compagniaInput) throws Exception {
 		if (isNotActive())
 			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
 
@@ -229,11 +229,12 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 
 		ArrayList<Impiegato> result = new ArrayList<Impiegato>();
 		Impiegato impiegatoTemp = null;
-		try (PreparedStatement ps = connection.prepareStatement("select * from impiegato i inner join compagnia c on i.compagnia_id = c.id where c.id=?")) {
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from impiegato i inner join compagnia c on i.compagnia_id = c.id where c.id=?")) {
 
 			ps.setLong(1, compagniaInput.getId());
 			try (ResultSet rs = ps.executeQuery()) {
-				while(rs.next()) {
+				while (rs.next()) {
 
 					impiegatoTemp = new Impiegato();
 					impiegatoTemp.setNome(rs.getString("nome"));
@@ -253,8 +254,29 @@ public class ImpiegatoDAOImpl extends AbstractMySQLDAO implements ImpiegatoDAO {
 		return result;
 	};
 
-	public int countByDataFormazioneCompagniaGreaterThan(Date dataInput) {
-		return 0;
+	public int countByDataFormazioneCompagniaGreaterThan(Date dataInput) throws Exception {
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (dataInput == null) {
+			throw new Exception("Valore di input non ammesso.");
+		}
+
+		int result = 0;
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select count(*) as totale from impiegato i inner join compagnia c on i.compagnia_id = c.id where c.datafondazione >= ?")) {
+
+			ps.setDate(1, new java.sql.Date(dataInput.getTime()));
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next())
+					result = rs.getInt("totale");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	};
 
 	public List<Impiegato> findAllByCompagniaConFatturatoMaggioreDi(long fatturatoInput) {
