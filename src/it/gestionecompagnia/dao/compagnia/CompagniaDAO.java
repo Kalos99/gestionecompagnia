@@ -8,7 +8,7 @@ import it.gestionecompagnia.model.Compagnia;
 
 public interface CompagniaDAO extends IBaseDAO<Compagnia>{
 
-	public List<Compagnia> findAllByDataAssuunzioneMaggioreDi(Date dataInput) throws Exception;
+	public List<Compagnia> findAllByDataAssunzioneMaggioreDi(Date dataInput) throws Exception;
 
 	public List<Compagnia> findAllByRagioneSocialeContiene(String input) throws Exception; 
 

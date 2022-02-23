@@ -11,6 +11,7 @@ import java.util.List;
 import it.gestionecompagnia.dao.AbstractMySQLDAO;
 import it.gestionecompagnia.model.Compagnia;
 
+
 public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 
 	public CompagniaDAOImpl(Connection connection) {
@@ -188,9 +189,35 @@ public class CompagniaDAOImpl extends AbstractMySQLDAO implements CompagniaDAO {
 		return result;
 	};
 
-	public List<Compagnia> findAllByDataAssuunzioneMaggioreDi(Date dataInput) throws Exception {
-		return null;
-	};
+	public List<Compagnia> findAllByDataAssunzioneMaggioreDi(Date dataInput) throws Exception {
+		// prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		ArrayList<Compagnia> result = new ArrayList<Compagnia>();
+		Compagnia compagniaTemp = null;
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select distinct * from compagnia c inner join impiegato i on c.id = i.compagnia_id where i.dataassunzione >= ?")) {
+			{
+				ps.setDate(1, new java.sql.Date(dataInput.getTime()));
+				try (ResultSet rs = ps.executeQuery()) {
+					while (rs.next()) {
+							compagniaTemp = new Compagnia();
+							compagniaTemp.setRagioneSociale(rs.getString("ragionesociale"));
+							compagniaTemp.setFatturatoAnnuo(rs.getLong("fatturato"));
+							compagniaTemp.setDataFondazione(rs.getDate("datafondazione"));
+							compagniaTemp.setId(rs.getLong("ID"));
+							result.add(compagniaTemp);
+					}
+				}
+			}	
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
+	}
 
 	public List<Compagnia> findAllByRagioneSocialeContiene(String input) throws Exception {
 		return null;
